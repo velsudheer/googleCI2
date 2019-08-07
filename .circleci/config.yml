@@ -1,20 +1,29 @@
+# Java Maven CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-java/ for more details
+#
 version: 2
 jobs:
-  - build:
+  build:
     docker:
-    - image: circleci/openjdk:8-jdk-browsers
+      # specify the version you desire here
+      - image: circleci/openjdk:8-jdk-browsers
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx3200m
+
     steps:
-    - checkout
-    - run: sudo apt update
-    - run: google-chrome --version
-    - run: chmod +777 chromedriver
-    - run: xvfb-run java -Dwebdriver.chrome.driver=chromedriver -jar selenium-server-standalone.jar >/dev/null 2>&1 &
-    - run: chromedriver --version
-    - run: java -version
-    - run: java -jar src/Test.jar
-    - run: jar -tvf src/Test.jar
-   workflows:
-  version: 2
-  workflow:
-    jobs:
-   
+      - checkout
+
+      - run: mvn dependency:go-offline
+
+      # run tests!
+      - run: mvn integration-test
